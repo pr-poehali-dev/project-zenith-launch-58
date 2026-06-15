@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import ArcGalleryHero from "@/components/ArcGalleryHero";
-import func2url from '../../func2url.json';
+import func2url from '../../backend/func2url.json';
 
 const API = func2url['gallery'];
 
