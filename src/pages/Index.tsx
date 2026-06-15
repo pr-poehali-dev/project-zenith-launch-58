@@ -1,6 +1,9 @@
+import { useState, useEffect } from 'react';
 import ArcGalleryHero from "@/components/ArcGalleryHero";
 
-const images = [
+const STORAGE_KEY = 'nargiza_gallery_photos';
+
+const FALLBACK_IMAGES = [
   "https://cdn.poehali.dev/projects/7382b3f9-d9e4-4d12-8d60-ebcc5d5c0c70/bucket/eb6d59a6-d8c1-4986-b436-7d9e4b9a051b.jpg",
   "/freepik__enhance__98192.png",
   "/LS.png",
@@ -12,10 +15,20 @@ const images = [
   "/freepik__abstract-digital-art-featuring-a-series-of-horizon__489.png",
   "/abstract-blue-gradient.webp",
   "/VkvvhXlWo3hEBzcqwTpjd_aa4bf9ee998f4ec0b17a8bf16fe3e9e2.jpg",
-  "/hyperrealistic_commercial_product_photography_of_luxury_chrome_sunglasses_on_male_model_extreme_chi_fanguv2w9zx489lcivwa_2.png",
 ];
 
 const Index = () => {
+  const [images, setImages] = useState<string[]>(FALLBACK_IMAGES);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      if (saved.length > 0) {
+        setImages(saved.map((p: { url: string }) => p.url));
+      }
+    } catch (_e) { void _e; }
+  }, []);
+
   return (
     <main className="relative min-h-screen bg-background">
       <ArcGalleryHero

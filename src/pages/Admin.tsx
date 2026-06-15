@@ -1,70 +1,74 @@
-import { useState, useRef } from 'react';
-import func2url from '../../backend/func2url.json';
+import { useState, useRef, useEffect } from 'react';
 
-const API = func2url['gallery'];
+const STORAGE_KEY = 'nargiza_gallery_photos';
+const ADMIN_PASSWORD = 'NARGIZA_ADMIN';
+const IMGUR_CLIENT_ID = 'f8b49e6e5e36175';
+
+type Photo = { id: string; url: string };
+
+const getPhotos = (): Photo[] => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+};
+const savePhotos = (photos: Photo[]) => localStorage.setItem(STORAGE_KEY, JSON.stringify(photos));
 
 const Admin = () => {
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState('');
-  const [photos, setPhotos] = useState<{ id: number; url: string }[]>([]);
+  const [photos, setPhotos] = useState<Photo[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const login = async () => {
-    const res = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password, image: '', content_type: 'image/jpeg' }),
-    });
-    if (res.status === 401) {
-      setAuthError('Неверный пароль');
-      return;
-    }
-    setAuthed(true);
-    loadPhotos();
-  };
+  useEffect(() => {
+    if (authed) setPhotos(getPhotos());
+  }, [authed]);
 
-  const loadPhotos = async () => {
-    const res = await fetch(API);
-    const data = await res.json();
-    setPhotos(data.photos || []);
+  const login = () => {
+    if (password === ADMIN_PASSWORD) {
+      setAuthed(true);
+    } else {
+      setAuthError('Неверный пароль');
+    }
   };
 
   const upload = async (file: File) => {
     setUploading(true);
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const base64 = (e.target?.result as string) || '';
-      await fetch(API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password, image: base64, content_type: file.type }),
-      });
-      await loadPhotos();
-      setUploading(false);
-    };
-    reader.readAsDataURL(file);
+    setError('');
+    const formData = new FormData();
+    formData.append('image', file);
+    const res = await fetch('https://api.imgur.com/3/image', {
+      method: 'POST',
+      headers: { Authorization: `Client-ID ${IMGUR_CLIENT_ID}` },
+      body: formData,
+    });
+    const data = await res.json();
+    if (data.success) {
+      const newPhoto = { id: data.data.id, url: data.data.link };
+      const updated = [newPhoto, ...getPhotos()];
+      savePhotos(updated);
+      setPhotos(updated);
+    } else {
+      setError('Ошибка загрузки. Попробуй ещё раз.');
+    }
+    setUploading(false);
   };
 
-  const deletePhoto = async (id: number) => {
-    await fetch(API, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password, id }),
-    });
-    setPhotos((p) => p.filter((x) => x.id !== id));
+  const deletePhoto = (id: string) => {
+    const updated = photos.filter((p) => p.id !== id);
+    savePhotos(updated);
+    setPhotos(updated);
   };
 
   if (!authed) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="w-full max-w-sm bg-card rounded-2xl p-8 shadow-2xl border border-border">
-          <h1 className="text-2xl font-bold text-foreground text-center mb-2">NARGIZA</h1>
+          <h1 className="text-2xl font-bold text-foreground text-center mb-1">NARGIZA</h1>
           <p className="text-muted-foreground text-center text-sm mb-6">Управление галереей</p>
           <input
             type="password"
-            placeholder="Введите пароль"
+            placeholder="Пароль"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && login()}
@@ -93,7 +97,7 @@ const Admin = () => {
         <button
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="w-full mb-8 py-5 rounded-2xl border-2 border-dashed border-primary/50 text-primary hover:border-primary hover:bg-primary/5 transition-all font-semibold text-lg disabled:opacity-50"
+          className="w-full mb-4 py-5 rounded-2xl border-2 border-dashed border-primary/50 text-primary hover:border-primary hover:bg-primary/5 transition-all font-semibold text-lg disabled:opacity-50"
         >
           {uploading ? 'Загружаю...' : '+ Добавить фото'}
         </button>
@@ -104,6 +108,7 @@ const Admin = () => {
           className="hidden"
           onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
         />
+        {error && <p className="text-red-400 text-sm text-center mb-4">{error}</p>}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {photos.map((photo) => (
