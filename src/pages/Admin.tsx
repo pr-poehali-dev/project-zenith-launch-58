@@ -1,15 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 
-const STORAGE_KEY = 'nargiza_gallery_photos';
-const ADMIN_PASSWORD = 'NARGIZA_ADMIN';
-const IMGUR_CLIENT_ID = 'f8b49e6e5e36175';
+const API = '/api.php';
 
 type Photo = { id: string; url: string };
-
-const getPhotos = (): Photo[] => {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
-};
-const savePhotos = (photos: Photo[]) => localStorage.setItem(STORAGE_KEY, JSON.stringify(photos));
 
 const Admin = () => {
   const [password, setPassword] = useState('');
@@ -21,43 +14,56 @@ const Admin = () => {
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (authed) setPhotos(getPhotos());
+    if (authed) loadPhotos();
   }, [authed]);
 
-  const login = () => {
-    if (password === ADMIN_PASSWORD) {
-      setAuthed(true);
-    } else {
+  const loadPhotos = async () => {
+    const res = await fetch(API);
+    const data = await res.json();
+    setPhotos(data.photos || []);
+  };
+
+  const login = async () => {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password, image: '', content_type: 'image/jpeg' }),
+    });
+    if (res.status === 401) {
       setAuthError('Неверный пароль');
+      return;
     }
+    setAuthed(true);
   };
 
   const upload = async (file: File) => {
     setUploading(true);
     setError('');
-    const formData = new FormData();
-    formData.append('image', file);
-    const res = await fetch('https://api.imgur.com/3/image', {
-      method: 'POST',
-      headers: { Authorization: `Client-ID ${IMGUR_CLIENT_ID}` },
-      body: formData,
-    });
-    const data = await res.json();
-    if (data.success) {
-      const newPhoto = { id: data.data.id, url: data.data.link };
-      const updated = [newPhoto, ...getPhotos()];
-      savePhotos(updated);
-      setPhotos(updated);
-    } else {
-      setError('Ошибка загрузки. Попробуй ещё раз.');
-    }
-    setUploading(false);
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = (e.target?.result as string) || '';
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, image: base64, content_type: file.type }),
+      });
+      if (res.ok) {
+        await loadPhotos();
+      } else {
+        setError('Ошибка загрузки. Попробуй ещё раз.');
+      }
+      setUploading(false);
+    };
+    reader.readAsDataURL(file);
   };
 
-  const deletePhoto = (id: string) => {
-    const updated = photos.filter((p) => p.id !== id);
-    savePhotos(updated);
-    setPhotos(updated);
+  const deletePhoto = async (id: string) => {
+    await fetch(API, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password, id }),
+    });
+    setPhotos((p) => p.filter((x) => x.id !== id));
   };
 
   if (!authed) {

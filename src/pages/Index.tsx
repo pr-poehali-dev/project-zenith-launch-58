@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import ArcGalleryHero from "@/components/ArcGalleryHero";
 
-const STORAGE_KEY = 'nargiza_gallery_photos';
-
 const FALLBACK_IMAGES = [
   "https://cdn.poehali.dev/projects/7382b3f9-d9e4-4d12-8d60-ebcc5d5c0c70/bucket/eb6d59a6-d8c1-4986-b436-7d9e4b9a051b.jpg",
   "/freepik__enhance__98192.png",
@@ -21,12 +19,14 @@ const Index = () => {
   const [images, setImages] = useState<string[]>(FALLBACK_IMAGES);
 
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      if (saved.length > 0) {
-        setImages(saved.map((p: { url: string }) => p.url));
-      }
-    } catch (_e) { void _e; }
+    fetch('/api.php')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.photos && data.photos.length > 0) {
+          setImages(data.photos.map((p: { url: string }) => p.url));
+        }
+      })
+      .catch((_e) => void _e);
   }, []);
 
   return (
