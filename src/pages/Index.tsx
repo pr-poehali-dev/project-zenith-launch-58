@@ -2,6 +2,7 @@ import ArcGalleryHero from "@/components/ArcGalleryHero";
 
 const Index = () => {
   const images = [
+    "https://cdn.poehali.dev/projects/7382b3f9-d9e4-4d12-8d60-ebcc5d5c0c70/bucket/eb6d59a6-d8c1-4986-b436-7d9e4b9a051b.jpg",
     "/freepik__enhance__98192.png",
     "/LS.png",
     "/freepik__a-closeup-shot-features-a-glossy-purple-crossshape__48873.png",

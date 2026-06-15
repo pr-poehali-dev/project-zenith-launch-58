@@ -104,15 +104,25 @@ const ArcGalleryHero = ({
             NARGIZA
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Артистка, мечтательница и автор визуальных историй. Каждый кадр — отдельный мир.
+            Артистка · Певица · Визуальный мир NARGIZA
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button className="w-full sm:w-auto px-6 py-3 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-              Смотреть работы
-            </button>
-            <button className="w-full sm:w-auto px-6 py-3 rounded-full border border-border hover:bg-accent hover:text-accent-foreground transition-all duration-200">
-              Связаться
-            </button>
+            <a
+              href="https://nargiza.fun"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto px-6 py-3 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-center font-semibold"
+            >
+              nargiza.fun
+            </a>
+            <a
+              href="https://instagram.com/nargiza"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto px-6 py-3 rounded-full border border-border hover:border-accent hover:text-accent transition-all duration-200 text-center"
+            >
+              Instagram
+            </a>
           </div>
         </div>
       </div>
