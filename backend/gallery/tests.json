@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "GET photos list",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {"photos": []},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
