@@ -1,10 +1,6 @@
-import { useEffect, useState } from 'react';
 import ArcGalleryHero from "@/components/ArcGalleryHero";
-import func2url from '../../backend/func2url.json';
 
-const API = func2url['gallery'];
-
-const FALLBACK_IMAGES = [
+const images = [
   "https://cdn.poehali.dev/projects/7382b3f9-d9e4-4d12-8d60-ebcc5d5c0c70/bucket/eb6d59a6-d8c1-4986-b436-7d9e4b9a051b.jpg",
   "/freepik__enhance__98192.png",
   "/LS.png",
@@ -20,19 +16,6 @@ const FALLBACK_IMAGES = [
 ];
 
 const Index = () => {
-  const [images, setImages] = useState<string[]>(FALLBACK_IMAGES);
-
-  useEffect(() => {
-    fetch(API)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.photos && data.photos.length > 0) {
-          setImages(data.photos.map((p: { url: string }) => p.url));
-        }
-      })
-      .catch(() => {});
-  }, []);
-
   return (
     <main className="relative min-h-screen bg-background">
       <ArcGalleryHero
