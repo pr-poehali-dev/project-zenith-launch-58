@@ -69,15 +69,14 @@ const ArcGalleryHero = ({
             return (
               <div
                 key={i}
-                className="absolute opacity-0 animate-fade-in-up"
+                className="absolute animate-fade-in-up"
                 style={{
                   width: dimensions.cardSize,
                   height: dimensions.cardSize,
                   left: `calc(50% + ${x}px)`,
                   bottom: `${y}px`,
                   transform: `translate(-50%, 50%)`,
-                  animationDelay: `${i * 100}ms`,
-                  animationFillMode: 'forwards',
+                  animationDelay: `${i * 80}ms`,
                   zIndex: count - i,
                 }}
               >
@@ -99,7 +98,7 @@ const ArcGalleryHero = ({
       </div>
 
       <div className="relative z-10 flex-1 flex items-center justify-center px-6 -mt-40 md:-mt-52 lg:-mt-64">
-        <div className="text-center max-w-2xl px-6 opacity-0 animate-fade-in" style={{ animationDelay: '800ms', animationFillMode: 'forwards' }}>
+        <div className="text-center max-w-2xl px-6 animate-fade-in" style={{ animationDelay: '600ms' }}>
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-foreground uppercase">
             NARGIZA
           </h1>
