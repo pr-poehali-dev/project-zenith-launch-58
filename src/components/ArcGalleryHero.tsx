@@ -114,7 +114,7 @@ const ArcGalleryHero = ({
               nargiza.fun
             </a>
             <a
-              href="https://instagram.com/nargiza"
+              href="https://www.instagram.com/nargizamuz?igsh=MThzaDNsYmF0cHdqdg=="
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto px-6 py-3 rounded-full border border-border hover:border-accent hover:text-accent transition-all duration-200 text-center"
